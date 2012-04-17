@@ -1,4 +1,4 @@
-﻿
+
 #include "./SimpleCommentFactory.h"
 
 int main(int argc, char** argv){

@@ -6,6 +6,7 @@
  */
 
 #include <cmath>
+#include <cstring>
 #include <iostream>
 #include "SimpleCommentFactory.h"
 
@@ -23,6 +24,11 @@ SimpleCommentFactory::SimpleCommentFactory()//(sdl::Renderer* renderer)
 		LOGFONTW logf;
 		memset(&logf, 0, sizeof(LOGFONTW));
 		logf.lfCharSet=DEFAULT_CHARSET;
+		// こうやるとファミリーを指定可能 Lはワイド文字列のリテラルです
+		//wcscpy(logf.lfFaceName, L"Arial");
+		wcscpy(logf.lfFaceName, L"MS Gothic");
+		//より詳しくは
+		// http://msdn.microsoft.com/en-us/goglobal/bb688134
 		cairo_font_face_t* ft = cairo_win32_font_face_create_for_logfontw(&logf);
 		this->face(ft);
 	}

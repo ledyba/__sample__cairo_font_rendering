@@ -24,7 +24,7 @@ namespace sdl {
 class Renderer;
 class SimpleCommentFactory{//: public saccubus::draw::CommentFactory {
 private:
-	/* コメントの太さの最大値です */
+	/* コメントの太さの固定値です */
 	static const double ShadowWidth;
 private:
 	/* 以下、アクセサの設定です。どの変数もクラス内からしか見えません。 */

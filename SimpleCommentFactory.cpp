@@ -34,6 +34,9 @@ SimpleCommentFactory::SimpleCommentFactory()//(sdl::Renderer* renderer)　←　
 		//より詳しくは
 		// http://msdn.microsoft.com/en-us/goglobal/bb688134
 		cairo_font_face_t* ft = cairo_win32_font_face_create_for_logfontw(&logf);
+		// ここでは、ヘッダでマクロを使って作成したsetterメソッドを使っています。
+		// this-><プロパティ名>() がgetter、
+		// this-><プロパティ名>( <パラメータ> )がsetterです
 		this->face(ft);
 	}
 #else /* Windows以外のシステムではFreeType+fontconfigを使います */
@@ -58,7 +61,10 @@ SimpleCommentFactory::SimpleCommentFactory()//(sdl::Renderer* renderer)　←　
 	{
 		// 事前にフォントのサイズを計算するために、空のサーフェイスを作ってる。
 		// FIXME: 代替策があるはず
+		
+		// 10x10のサーフェイスを作ります。
 		this->emptySurface(cairo_image_surface_create(CAIRO_FORMAT_RGB24, 10, 10));
+		// そのサーフェイスをターゲットにしたcairo_t*を作ります。
 		this->emptyCairo(cairo_create(this->emptySurface()));
 	}
 }

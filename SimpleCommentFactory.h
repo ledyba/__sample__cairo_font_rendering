@@ -24,9 +24,11 @@ namespace sdl {
 class Renderer;
 class SimpleCommentFactory{//: public saccubus::draw::CommentFactory {
 private:
+	/* コメントの太さの最大値です */
 	static const double ShadowWidth;
 private:
-#ifndef WIN32
+	/* 以下、アクセサの設定です。どの変数もクラス内からしか見えません。 */
+#ifndef WIN32 /* プリプロセッサを用いて、Windowsでない時しかコンパイルされないようにします */
 	DEF_ATTR_ACCESSOR(private, private, FcPattern*, pattern);
 #endif
 	DEF_ATTR_ACCESSOR(private, private, cairo_font_face_t*, face);
@@ -37,10 +39,13 @@ public:
 	virtual ~SimpleCommentFactory();
 private:
 	void setColor(cairo_t* cairo, unsigned int color);
+
+	// 元のさきゅばすではこのシグネチャですが、コンパイル依存性を除外するため変えました。
 	//void setupCairo(cairo_t* cairo, const saccubus::context::Comment* comment, float factor);
 	void setupCairo(cairo_t* cairo, float fontWidth, float factor);
 public:
 //	virtual saccubus::draw::Sprite::Handler<saccubus::draw::Sprite> renderComment(const saccubus::context::Comment* comment, float factor);
+	//コメントを描画します
 	void renderComment(const std::string& msg, float fontWidth, unsigned int color, unsigned int shadowColor, float factor);
 };
 

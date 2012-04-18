@@ -16,11 +16,15 @@ namespace sdl {
 
 const double SimpleCommentFactory::ShadowWidth = 5.0;
 
-SimpleCommentFactory::SimpleCommentFactory()//(sdl::Renderer* renderer)
+/*
+ * コンストラクタです。オブジェクト作成時に呼ばれます。
+ */
+SimpleCommentFactory::SimpleCommentFactory()//(sdl::Renderer* renderer)　←　さきゅばす本実装では、レンダラを引数にとります
 //:CommentFactory(renderer)
 {
-#ifdef WIN32
+#ifdef WIN32 /* Windowsの時だけコンパイルされます */
 	{
+		/* MSDN */
 		LOGFONTW logf;
 		memset(&logf, 0, sizeof(LOGFONTW));
 		logf.lfCharSet=DEFAULT_CHARSET;
@@ -32,7 +36,7 @@ SimpleCommentFactory::SimpleCommentFactory()//(sdl::Renderer* renderer)
 		cairo_font_face_t* ft = cairo_win32_font_face_create_for_logfontw(&logf);
 		this->face(ft);
 	}
-#else
+#else /* Windows以外のシステムではFreeType+fontconfigを使います */
 	{ /* パターンの作成 */
 		FcPattern* pattern = FcPatternCreate();
 		this->pattern(pattern);
@@ -59,6 +63,10 @@ SimpleCommentFactory::SimpleCommentFactory()//(sdl::Renderer* renderer)
 	}
 }
 
+ /*
+  * デストラクタです。Javaでいうところのファイナライザで、
+  * オブジェクトが開放される時に必ず呼ばれます。
+  */
 SimpleCommentFactory::~SimpleCommentFactory() {
 	cairo_destroy(this->emptyCairo());
 	this->emptyCairo(0);
@@ -78,13 +86,19 @@ SimpleCommentFactory::~SimpleCommentFactory() {
 //void SimpleCommentFactory::setupCairo(cairo_t* cairo, const saccubus::context::Comment* comment, float factor)
 void SimpleCommentFactory::setupCairo(cairo_t* cairo, float fontWidth, float factor)
 {
+	// 変換行列を単位行列に戻します。
 	cairo_identity_matrix(cairo);
+	// ファクタに合わせてスケールしてもらいます。
 	cairo_scale(cairo, factor, factor);
+	// フォントの設定です。
 	cairo_set_font_face(cairo, this->face());
+	// 太さはこちらで設定します。
 	cairo_set_font_size(cairo, fontWidth);
+	// 描画先を左上に設定します。
 	cairo_move_to(cairo, 0, 0);
 }
 
+// カラーコードからcairoが用いる色を設定します。
 void SimpleCommentFactory::setColor(cairo_t* cairo, unsigned int color)
 {
 	unsigned int r = (color & 0xff0000) >> 16;
@@ -117,9 +131,12 @@ void SimpleCommentFactory::renderComment(const std::string& msg, float fontWidth
 		width = std::ceil(w);
 		height = std::ceil(h);
 	}
+	// さきゅばす本実装では、このように描画先のスプライトを取得できます。
+	// ここでは、ヘッダで指定してあるアクセサ関数を用いてレンダラを取得しています。
 	//Sprite::Handler<RawSprite> spr = this->renderer()->queryRawSprite(width, height);
 	{ /* 実際にレンダリング */
 		/*
+		RawSprite::Sessionを使うと、スプライト内のデータに直接アクセスできます。
 		RawSprite::Session session(spr);
 		cairo_surface_t* surface = cairo_image_surface_create_for_data(
 						reinterpret_cast<unsigned char*>(session.data()),
@@ -130,27 +147,38 @@ void SimpleCommentFactory::renderComment(const std::string& msg, float fontWidth
 				);
 		*/
 		std::cout << width <<"x"<<height << std::endl;
+		// ここではサンプルなので、スプライトのデータは使いません。
 		cairo_surface_t* surface = cairo_image_surface_create(
 						CAIRO_FORMAT_ARGB32,
 						width,
 						height
 				);
 		cairo_t* cairo = cairo_create(surface);
+		// コンストラクタで作ったフォントを設定して、
+		// 拡大率も設定します。
 		this->setupCairo(cairo, fontWidth, factor);
 
+		// フォントをレンダリングするために、移動します。
 		cairo_move_to(cairo, x, y);
+		// フォントに合わせて、パスを引きます。
 		cairo_text_path(cairo, msg.c_str());
 
 		this->setColor(cairo, shadowColor);
+		// 引いたパスにそって、ラインを引きます。これが影になります。
 		cairo_set_line_width(cairo, ShadowWidth);
+		// ここでpreserveを使うことで、次の関数でもフォントに合わせて引いたパスが使えます。
+		// ためしにcairo_strokeにしたらどうなるか試してみてください。
 		cairo_stroke_preserve(cairo);
 
 		this->setColor(cairo, color);
+		// 引いたパスの中身を、setColorした色に合わせて塗りつぶします。
+		// これが文字本体になります。
 		cairo_fill(cairo);
 
 		cairo_destroy(cairo);
 		
-		//for debug
+		// for debug
+		// 描画結果をPNGに保存します。
 		cairo_surface_write_to_png(surface, "rendererd.png");
 
 		cairo_surface_destroy(surface);
